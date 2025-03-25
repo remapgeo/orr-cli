@@ -1,0 +1,3 @@
+{% if  not erros['columns']['ausente'] == [] %}The mandatory columns are missing: {{', '.join(erros['columns']['ausente'])}}{% endif %}
+{% if  not erros['columns']['excedente'] == [] %}The columns aren't expected: {{', '.join(erros['columns']['excedente'])}} {% endif %}
+{{'\n'.join(erros['rows'])}} 

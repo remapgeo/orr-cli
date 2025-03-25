@@ -1,0 +1,35 @@
+site_name: Cli OBSERVATÓRIO DA RESTAURAÇÃO E REFLORESTAMENTO
+repo_url: 'https://github.com/GeoCode-Labs/projetos-orr'
+edit_uri:  tree/main/docs
+
+theme:
+  name: material
+  language: pt-BR
+  logo: assets/logo.png
+  favicon: assets/favicon.ico
+
+markdown_extensions:
+  - attr_list
+
+extra_css:
+  - stylesheets/style.css
+
+watch:
+   - orr_cli
+
+plugins:
+  - macros
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [orr_cli]
+  - i18n:
+      docs_structure: suffix
+      languages:
+        - locale: en
+          name: English
+          build: true
+        - locale: pt-BR
+          name: Portuguese Brazilian
+          default: true
+          build: true

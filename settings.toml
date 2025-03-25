@@ -1,0 +1,6 @@
+[default]
+DB_NAME = 'teste'
+DB_USER = 'orr_master'
+DB_PASSWORD = 'teste123456'
+DB_HOST = 'postgisteste'
+DB_PORT = 5432

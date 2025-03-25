@@ -1,0 +1,81 @@
+name: Release Package
+
+on:
+  push:
+    branches:
+      - production
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code with Git LFS
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Garante acesso ao histórico para gerar changelog corretamente
+          lfs: true        # Habilita o Git LFS para baixar arquivos grandes
+
+      - name: Pull LFS files
+        run: git lfs pull
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install Poetry
+        run: curl -sSL https://install.python-poetry.org | python3 -
+
+      - name: Install conventional-changelog-cli
+        run: npm install -g conventional-changelog-cli
+
+      - name: Install dependencies
+        run: poetry install
+
+      - name: Get current package version
+        id: get_version
+        run: echo "VERSION=$(poetry version -s)" >> $GITHUB_ENV
+
+      - name: Check if tag already exists
+        id: check_tag
+        run: |
+          if git rev-parse "v${{ env.VERSION }}" >/dev/null 2>&1; then
+            echo "TAG_EXISTS=true" >> $GITHUB_ENV
+          else
+            echo "TAG_EXISTS=false" >> $GITHUB_ENV
+          fi
+
+      - name: Generate release notes (without CHANGELOG.md)
+        id: generate_notes
+        if: env.TAG_EXISTS == 'false'
+        run: |
+          git fetch --tags
+          last_tag=$(git describe --tags `git rev-list --tags --max-count=1` || echo "")
+          echo "Previous tag found: $last_tag"
+          release_notes=$(conventional-changelog -p angular --commit-path . --tag-prefix v -r 1)
+          echo "NOTES<<EOF" >> $GITHUB_ENV
+          echo "$release_notes" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Create new tag
+        if: env.TAG_EXISTS == 'false'
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git tag v${{ env.VERSION }}
+          git push origin v${{ env.VERSION }}
+
+      - name: Build the package
+        if: env.TAG_EXISTS == 'false'
+        run: poetry build
+
+      - name: Publish the package to GitHub Releases
+        if: env.TAG_EXISTS == 'false'
+        uses: ncipollo/release-action@v1
+        with:
+          tag: v${{ env.VERSION }}
+          name: Release ${{ env.VERSION }}
+          body: ${{ env.NOTES }}
+          artifacts: dist/*.whl

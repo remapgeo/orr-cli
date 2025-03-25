@@ -1,0 +1,7 @@
+{
+    "text_cat":"Uma das categoria deve ser escolhida:\n 1 - Restauração\n 2 - Reflorestamento\n 3 - Não sei",
+    "file_help_menu":"Para enviar um arquivo vetorial de restauração ou reflorestamento, envie um arquivo .gpkg, .shp ou .geojson para o banco de dados",
+    "institution_help_menu": "Sub comando para tratar das instituições como criar uma nova ou alterar informação de uma existente"
+
+
+}
